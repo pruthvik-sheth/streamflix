@@ -13,7 +13,8 @@ func SetupRouter(userService *service.UserService) http.Handler {
 	mux.HandleFunc("/ping", handlers.PingHandler)
 
 	userHandler := handlers.NewUserHandler(userService)
-	mux.HandleFunc("api/register", userHandler.Register)
+	mux.HandleFunc("/api/register", userHandler.Register)
+	mux.HandleFunc("/api/login", userHandler.Login)
 
 	return mux
 }

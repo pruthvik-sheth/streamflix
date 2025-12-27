@@ -61,3 +61,24 @@ func (s *UserService) Register(ctx context.Context, email string, password strin
 	return user, nil
 
 }
+
+func (s *UserService) Login(ctx context.Context, email string, password string) (*domain.User, error) {
+	if email == "" || password == "" {
+		return nil, errors.New("Email and password are required!")
+	}
+
+	// Check if the user exists
+	existingUser, err := s.userRepo.GetByEmail(ctx, email)
+
+	if err != nil {
+		return nil, errors.New("Invalid Credentials")
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(existingUser.Password), []byte(password))
+	if err != nil {
+		return nil, errors.New("Invalid Credentials")
+	}
+
+	// If the user exists then the next step is to check whether the user has entered the correct password
+	return existingUser, nil
+}
