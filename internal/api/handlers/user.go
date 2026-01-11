@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"streamflix/internal/service"
+	"strings"
+	"time"
 )
 
 type UserHandler struct {
@@ -102,5 +104,45 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(resp)
+}
+
+type UserProfileResponse struct {
+	ID        string    `json:"id"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+func (h *UserHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extracting UserID from the URL path
+	// URL format: /api/users/dfsdjfsodfj
+	path := r.URL.Path
+	id := strings.TrimPrefix(path, "/api/users/")
+
+	if id == "" || id == path {
+		http.Error(w, "User ID is required", http.StatusBadRequest)
+		return
+	}
+
+	user, err := h.userService.GetUserByID(r.Context(), id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	resp := UserProfileResponse{
+		ID:        user.ID,
+		Email:     user.Email,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
+
+	w.Header().Set("Content-type", "application/json")
 	json.NewEncoder(w).Encode(resp)
 }

@@ -15,6 +15,7 @@ func SetupRouter(userService *service.UserService) http.Handler {
 	userHandler := handlers.NewUserHandler(userService)
 	mux.HandleFunc("/api/register", userHandler.Register)
 	mux.HandleFunc("/api/login", userHandler.Login)
+	mux.HandleFunc("/api/users/", userHandler.GetProfile)
 
 	return mux
 }

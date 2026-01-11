@@ -82,3 +82,17 @@ func (s *UserService) Login(ctx context.Context, email string, password string) 
 	// If the user exists then the next step is to check whether the user has entered the correct password
 	return existingUser, nil
 }
+
+func (s *UserService) GetUserByID(ctx context.Context, id string) (*domain.User, error) {
+	if id == "" {
+		return nil, errors.New("User ID is required")
+	}
+
+	user, err := s.userRepo.GetByID(ctx, id)
+
+	if err != nil {
+		return nil, errors.New("User does not exists!")
+	}
+
+	return user, nil
+}
